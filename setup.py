@@ -46,11 +46,17 @@ class Clean(Command):
         for so_file in find_files(extension="so"):
             remove(so_file)
 
-        c_files = find_files(extension="c")
         pyx_files = find_files(extension="pyx")
+
+        c_files = find_files(extension="c")
         for c_file in c_files:
             if c_file[:-2] + ".pyx" in pyx_files:
                 remove(c_file)
+
+        cpp_files = find_files(extension="cpp")
+        for cpp_file in cpp_files:
+            if cpp_file[:-4] + ".pyx" in pyx_files:
+                remove(cpp_file)
 
 
 try:
@@ -69,18 +75,18 @@ extension_kwargs = (
     else dict()
 )
 
-ext = "pyx" if USING_CYTHON else "c"
-
 extensions = [
-    # Extension(
-    #     source.split(".")[0].replace(os.path.sep, "."),
-    #     sources=[source],
-    #     **extension_kwargs,
-    # )
-    # for source in find_files(extension=ext)
     Extension(
-        'algopack.sort', [os.path.join('algopack', 'sort.pyx')], **extension_kwargs
-    )
+        "algopack.sort",
+        [os.path.join("algopack", "sort." + ("pyx" if USING_CYTHON else "c"))],
+        **extension_kwargs
+    ),
+    Extension(
+        "algopack.stack",
+        [os.path.join("algopack", "stack." + ("pyx" if USING_CYTHON else "cpp"))],
+        language="c++",
+        **extension_kwargs
+    ),
 ]
 
 cmdclass = {"build_ext": build_ext, "sdist": SDist} if USING_CYTHON else {}
