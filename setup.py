@@ -22,8 +22,10 @@ class SDist(_sdist):
         _sdist.run(self)
 
 
-def find_files_with_extension(base, extension):
-    return glob(os.path.join(base, "**", "*." + extension), recursive=True)
+def find_files(base="algopack", module="", extension="*"):
+    return glob(
+        os.path.join(base, "**", module, "**", "*." + extension), recursive=True
+    )
 
 
 class Clean(Command):
@@ -39,13 +41,13 @@ class Clean(Command):
         remove("build")
         for folder in glob("*.egg-info"):
             remove(folder)
-        for pyd_file in find_files_with_extension("algopack", "pyd"):
+        for pyd_file in find_files(extension="pyd"):
             remove(pyd_file)
-        for so_file in find_files_with_extension("algopack", "so"):
+        for so_file in find_files(extension="so"):
             remove(so_file)
 
-        c_files = find_files_with_extension("algopack", "c")
-        pyx_files = find_files_with_extension("algopack", "pyx")
+        c_files = find_files(extension="c")
+        pyx_files = find_files(extension="pyx")
         for c_file in c_files:
             if c_file[:-2] + ".pyx" in pyx_files:
                 remove(c_file)
@@ -69,14 +71,16 @@ extension_kwargs = (
 
 ext = "pyx" if USING_CYTHON else "c"
 
-sources = find_files_with_extension("algopack", ext)
 extensions = [
+    # Extension(
+    #     source.split(".")[0].replace(os.path.sep, "."),
+    #     sources=[source],
+    #     **extension_kwargs,
+    # )
+    # for source in find_files(extension=ext)
     Extension(
-        source.split(".")[0].replace(os.path.sep, "."),
-        sources=[source],
-        **extension_kwargs,
+        'algopack.sort', [os.path.join('algopack', 'sort.pyx')], **extension_kwargs
     )
-    for source in sources
 ]
 
 cmdclass = {"build_ext": build_ext, "sdist": SDist} if USING_CYTHON else {}
