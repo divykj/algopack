@@ -9,7 +9,7 @@ import shutil
 
 def remove(path):
     """ param <path> could either be relative or absolute. """
-    log.info(f"removing {path}")
+    log.info("removing " + path)
     if os.path.isfile(path) or os.path.islink(path):
         os.remove(path)
     elif os.path.isdir(path):
@@ -23,7 +23,7 @@ class SDist(_sdist):
 
 
 def find_files_with_extension(base, extension):
-    return glob(os.path.join(base, "**", f"*.{extension}"), recursive=True)
+    return glob(os.path.join(base, "**", "*." + extension), recursive=True)
 
 
 class Clean(Command):

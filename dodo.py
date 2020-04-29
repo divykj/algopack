@@ -15,17 +15,12 @@ BUILD_EXT_QUIET_INPLACE = "python setup.py -q build_ext --inplace"
 
 DEVELOP_QUIET_CMD = "python setup.py -q develop"
 
-TEST_CMD = "pytest"
+TEST_CMD = "pytest tests"
 
 PUBLISH_CHECK_CMD = "twine check dist/*"
 
-PUBLISH_TEST_CMD = " twine upload --repository testpypi --config-file .pypirc dist/*"
-PUBLISH_CMD = " twine upload --repository pypi --config-file .pypirc dist/*"
-
-PUBLISH_WHEEL_TEST_CMD = (
-    " twine upload --repository testpypi --config-file .pypirc dist/*.whl"
-)
-PUBLISH_WHEEL_CMD = " twine upload --repository pypi --config-file .pypirc dist/*.whl"
+PUBLISH_CMD = " twine upload --non-interactive --skip-existing dist/*"
+PUBLISH_WHEEL_CMD = " twine upload --non-interactive --skip-existing dist/*.whl"
 
 
 def task_tests():
@@ -65,15 +60,20 @@ def task_clear():
     }
 
 
+def CLEAR_DISTS():
+    if os.path.isdir("dist"):
+        shutil.rmtree("dist")
+
+
 def task_publish_sdist():
     return {
         "actions": [
             DEVELOP_QUIET_CMD,
             BUILD_EXT_QUIET_INPLACE,
             TEST_CMD,
+            CLEAR_DISTS,
             SDIST_CMD,
             PUBLISH_CHECK_CMD,
-            PUBLISH_TEST_CMD,
             PUBLISH_CMD,
             CLEAN_CMD,
         ],
@@ -88,9 +88,9 @@ def task_publish_wheel():
             DEVELOP_QUIET_CMD,
             BUILD_EXT_QUIET_INPLACE,
             TEST_CMD,
+            CLEAR_DISTS,
             BDIST_WHEEL_CMD,
             PUBLISH_CHECK_CMD,
-            PUBLISH_WHEEL_TEST_CMD,
             PUBLISH_WHEEL_CMD,
             CLEAN_CMD,
         ],
