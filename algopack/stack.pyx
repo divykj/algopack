@@ -77,7 +77,7 @@ cpdef str infix_to_postfix(str infix):
         elif is_operator(item):
             popped_item = _stack.top()
             _stack.pop()
-            while is_operator(popped_item) and precedence(popped_item)>precedence(item):
+            while is_operator(popped_item) and precedence(popped_item)>=precedence(item):
                 postfix_string[j] = popped_item
                 j+=1
                 popped_item = _stack.top()
