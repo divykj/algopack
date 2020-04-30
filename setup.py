@@ -22,10 +22,8 @@ class SDist(_sdist):
         _sdist.run(self)
 
 
-def find_files(base="algopack", module="", extension="*"):
-    return glob(
-        os.path.join(base, "**", module, "**", "*." + extension), recursive=True
-    )
+def find_files(base="algopack", extension="*"):
+    return glob(os.path.join(base, "**", "*." + extension), recursive=True)
 
 
 class Clean(Command):
@@ -69,25 +67,42 @@ except ImportError:
 else:
     USING_CYTHON = True
 
+
+ext_modules = [
+    {"path": ("algopack", "sort")},
+    {"path": ("algopack", "stack"), "language": "c++"},
+]
+
+
 extension_kwargs = (
     dict(cython_directives={"language_level": 3, "embedsignature": True})
     if USING_CYTHON
     else dict()
 )
 
-extensions = [
-    Extension(
-        "algopack.sort",
-        [os.path.join("algopack", "sort." + ("pyx" if USING_CYTHON else "c"))],
-        **extension_kwargs
-    ),
-    Extension(
-        "algopack.stack",
-        [os.path.join("algopack", "stack." + ("pyx" if USING_CYTHON else "cpp"))],
-        language="c++",
-        **extension_kwargs
-    ),
-]
+
+def create_extension(module):
+    global USING_CYTHON, extension_kwargs
+
+    name = ".".join(module["path"])
+    path = os.path.join(*module["path"])
+    language = module.get("language", "c")
+    multisource = module.get("multisource", False)
+
+    if USING_CYTHON:
+        extension = "pyx"
+    elif language == "c":
+        extension = "c"
+    elif language == "c++":
+        extension = "cpp"
+
+    if multisource:
+        sources = find_files(path, extension)
+    else:
+        sources = [path + "." + extension]
+
+    return Extension(name, sources, language=language, **extension_kwargs)
+
 
 cmdclass = {"build_ext": build_ext, "sdist": SDist} if USING_CYTHON else {}
 cmdclass["clean"] = Clean
@@ -101,7 +116,7 @@ with open("requirements_dev.txt") as fp:
 if __name__ == "__main__":
     setup(
         packages=find_packages(exclude=("tests")),
-        ext_modules=extensions,
+        ext_modules=[create_extension(module) for module in ext_modules],
         cmdclass=cmdclass,
         install_requires=install_requires,
         extras_require={"dev": dev_requires},
