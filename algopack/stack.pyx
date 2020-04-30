@@ -98,6 +98,60 @@ cpdef str infix_to_postfix(str infix):
     free(postfix_string)
     return postfix.decode()
 
+
+# Infix To Prefix
+cpdef str infix_to_prefix(str infix):
+    cdef:
+        bytes infix_bytes = ("("+infix).encode()
+        char* infix_string = infix_bytes
+        stack[char] _stack = stack[char]()
+        char* prefix_string
+        bytes prefix
+        char item
+        char popped_item
+        int n = len(infix_string)
+        int i = n
+        int j = 0
+
+    prefix_string = <char *>malloc(len(infix_string)*sizeof(char))
+    if prefix_string==NULL:
+        raise MemoryError()
+    
+    _stack.push(ord(")"))
+
+    while i>0:
+        i-=1
+        item = infix_string[i]
+        if item==ord(")"):
+            _stack.push(item)
+        elif isalpha(item) or isdigit(item):
+            prefix_string[j] = item
+            j+=1
+        elif is_operator(item):
+            popped_item = _stack.top()
+            _stack.pop()
+            while is_operator(popped_item) and precedence(popped_item)>=precedence(item):
+                prefix_string[j] = popped_item
+                j+=1
+                popped_item = _stack.top()
+                _stack.pop()
+            _stack.push(popped_item)
+            _stack.push(item)
+        elif item==ord("("):
+            popped_item = _stack.top()
+            _stack.pop()
+            while popped_item!=ord(")"):
+                prefix_string[j] = popped_item
+                j+=1
+                popped_item = _stack.top()
+                _stack.pop()
+
+    prefix_string[j]=0
+    prefix = bytes(prefix_string)
+    free(prefix_string)
+    return prefix.decode()[::-1]
+
+
 cdef int precedence(char symbol):
     if symbol == ord("^"):
         return 3
