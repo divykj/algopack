@@ -1,4 +1,4 @@
-from algopack.stack import Stack, infix_to_postfix
+from algopack.stack import Stack, infix_to_postfix, infix_to_prefix
 
 import pytest
 
@@ -74,3 +74,20 @@ def test_infix_to_postfix():
         infix_to_postfix(None)
     with pytest.raises(TypeError):
         infix_to_postfix(123)
+
+
+def test_infix_to_prefix():
+    assert infix_to_prefix("A+B") == "+AB"
+    assert infix_to_prefix("1-2") == "-12"
+    assert infix_to_prefix("x*y") == "*xy"
+    assert infix_to_prefix("a/2") == "/a2"
+    assert infix_to_prefix("2^A") == "^2A"
+    assert infix_to_prefix("") == ""
+    assert infix_to_prefix("()") == ""
+    assert infix_to_prefix("(A+B^C)*D+E^5") == "+*+A^BCD^E5"
+    with pytest.raises(TypeError):
+        infix_to_prefix([])
+    with pytest.raises(TypeError):
+        infix_to_prefix(None)
+    with pytest.raises(TypeError):
+        infix_to_prefix(123)
