@@ -165,3 +165,38 @@ cdef int precedence(char symbol):
 cdef inline int is_operator(char symbol):
     return symbol == ord("^") or symbol == ord("*") or \
         symbol == ord("/") or symbol == ord("+") or symbol == ord("-")
+
+
+# Postfix Evaluation
+cpdef double eval_postfix(str postfix):
+    cdef:
+        bytes postfix_bytes = postfix.encode()
+        char* postfix_string = postfix_bytes
+        stack[double] _stack = stack[double]()
+        int n = len(postfix_string)
+        double op1, op2
+        int i = 0
+        char item
+
+    while i<n:
+        item = postfix_string[i]
+        if isdigit(item):
+            _stack.push(<double>(item-ord('0')))
+        elif is_operator(item):
+            op2 = _stack.top()
+            _stack.pop()
+            op1 = _stack.top()
+            _stack.pop()
+            if item==ord("+"):
+                _stack.push(op1+op2)
+            elif item==ord("-"):
+                _stack.push(op1-op2)
+            elif item==ord("*"):
+                _stack.push(op1*op2)
+            elif item==ord("/"):
+                _stack.push(op1/op2)
+            elif item==ord("^"):
+                _stack.push(op1**op2)
+        i+=1
+
+    return _stack.top()
