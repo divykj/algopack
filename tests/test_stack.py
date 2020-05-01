@@ -1,6 +1,7 @@
-from algopack.stack import Stack, infix_to_postfix, infix_to_prefix
+from algopack.stack import Stack, infix_to_postfix, infix_to_prefix, eval_postfix
 
 import pytest
+from pytest import approx
 
 
 def test_stack_push():
@@ -91,3 +92,14 @@ def test_infix_to_prefix():
         infix_to_prefix(None)
     with pytest.raises(TypeError):
         infix_to_prefix(123)
+
+
+def test_eval_postfix():
+    assert eval_postfix("12+") == approx(1 + 2)
+    assert eval_postfix("12-") == approx(1 - 2)
+    assert eval_postfix("12*") == approx(1 * 2)
+    assert eval_postfix("12/") == approx(1 / 2)
+    assert eval_postfix("32^") == approx(3 ** 2)
+    assert eval_postfix("462/^") == approx(4 ** (6 / 2))
+    assert eval_postfix("125+-") == approx(1 - (2 + 5))
+    assert eval_postfix("945*345+^-/") == approx(9 / ((4 * 5) - (3 ** (4 + 5))))
