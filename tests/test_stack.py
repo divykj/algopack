@@ -1,4 +1,10 @@
-from algopack.stack import Stack, infix_to_postfix, infix_to_prefix, eval_postfix
+from algopack.stack import (
+    Stack,
+    infix_to_postfix,
+    infix_to_prefix,
+    eval_postfix,
+    eval_prefix,
+)
 
 import pytest
 from pytest import approx
@@ -103,3 +109,14 @@ def test_eval_postfix():
     assert eval_postfix("462/^") == approx(4 ** (6 / 2))
     assert eval_postfix("125+-") == approx(1 - (2 + 5))
     assert eval_postfix("945*345+^-/") == approx(9 / ((4 * 5) - (3 ** (4 + 5))))
+
+
+def test_eval_prefix():
+    assert eval_prefix("+12") == approx(1 + 2)
+    assert eval_prefix("-12") == approx(1 - 2)
+    assert eval_prefix("*12") == approx(1 * 2)
+    assert eval_prefix("/12") == approx(1 / 2)
+    assert eval_prefix("^32") == approx(3 ** 2)
+    assert eval_prefix("/^462") == approx((4 ** 6) / 2)
+    assert eval_prefix("-+125") == approx((1 + 2) - 5)
+    assert eval_prefix("+^-/945*345") == approx((((9 / 4) - 5) ** (3 * 4)) + 5)
