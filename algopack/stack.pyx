@@ -200,3 +200,37 @@ cpdef double eval_postfix(str postfix):
         i+=1
 
     return _stack.top()
+
+
+cpdef double eval_prefix(str prefix):
+    cdef:
+        bytes prefix_bytes = prefix.encode()
+        char* prefix_string = prefix_bytes
+        stack[double] _stack = stack[double]()
+        int n = len(prefix_string)
+        double op1, op2
+        int i = n
+        char item
+
+    while i>0:
+        i-=1
+        item = prefix_string[i]
+        if isdigit(item):
+            _stack.push(<double>(item-ord('0')))
+        elif is_operator(item):
+            op1 = _stack.top()
+            _stack.pop()
+            op2 = _stack.top()
+            _stack.pop()
+            if item==ord("+"):
+                _stack.push(op1+op2)
+            elif item==ord("-"):
+                _stack.push(op1-op2)
+            elif item==ord("*"):
+                _stack.push(op1*op2)
+            elif item==ord("/"):
+                _stack.push(op1/op2)
+            elif item==ord("^"):
+                _stack.push(op1**op2)
+
+    return _stack.top()
